@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 if (MSVC)
   # Sets compile options for this directory and all subdirectories.
-  add_compile_options(/W4 /WX)
+  add_compile_options(/W4)
 else()
   add_compile_options(-W -Wall)
 endif()

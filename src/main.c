@@ -38,10 +38,14 @@ static char *targetFirstArg =
 int main(int argc, char *argv[], char *envp[]) {
   // Set cwd to the application directory.
   const char *exe_path = DG_GetExecutableDir();
+#if defined(_WIN32)
+  _chdir(exe_path);
+#else
   chdir(exe_path);
+#endif
 
   // Pass on any command line arguments to qode.
-  char *newArgv[argc+2];
+  char **newArgv = malloc((sizeof(char *)) * (argc+2));
   newArgv[0] = targetProgramPath;
   newArgv[1] = targetFirstArg;
   newArgv[2] = 0;
