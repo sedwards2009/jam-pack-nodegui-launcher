@@ -29,6 +29,8 @@ jobs:
           make
           mv jam-pack-nodegui-launcher jam-pack-nodegui-launcher-${{ matrix.platform }}
       - if: ${{ matrix.platform == 'win32' }}
+        uses: ilammy/msvc-dev-cmd@v1
+      - if: ${{ matrix.platform == 'win32' }}
         run: |
           mkdir build
           cd build
