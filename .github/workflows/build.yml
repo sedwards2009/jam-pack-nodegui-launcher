@@ -21,14 +21,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - if: ${{ matrix.os != 'win32' }}
+      - if: ${{ matrix.platform != 'win32' }}
         run: |
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
           make
           mv jam-pack-nodegui-launcher jam-pack-nodegui-launcher-${{ matrix.platform }}
-      - if: ${{ matrix.os == 'win32' }}
+      - if: ${{ matrix.platform == 'win32' }}
         run: |
           mkdir build
           cd build
