@@ -8,15 +8,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          os: [ubuntu-18.04, windows-latest, macos-latest]
+          - os: ubuntu-18.04
+            platform: linux
+            arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - run: |
+      - if: ${{ matrix.os != "win32" }}
+        run: |
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
           make
+          mv jam-pack-nodegui-launcher jam-pack-nodegui-launcher-${{ matrix.platform }}
+      - if: ${{ matrix.os == "win32" }}
+        run: |
+          mkdir build
+          cd build
+          cmake -G "NMake Makefiles" ..
+          nmake
+          rename jam-pack-nodegui-launcher.exe jam-pack-nodegui-launcher-${{ matrix.platform }}.exe
 
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -48,23 +65,23 @@ jobs:
             arch: x64
     runs-on: ${{ matrix.os }}
     env:
-      ARCHIVE_FILENAME: nodegui-plugin-style-tweaker-binary-${{github.ref_name}}-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz
+      EXE_FILENAME: jam-pack-nodegui-launcher-${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
-
-      - name: Build
-        run: npm run build
-        env:
-          CMAKE_BUILD_PARALLEL_LEVEL: 8
-
+      - run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+          mv jam-pack-nodegui-launcher jam-pack-nodegui-launcher-${{ matrix.platform }}
       - uses: actions/upload-artifact@v1
         with:
-          name: ${{ env.ARCHIVE_FILENAME }}
-          path: ${{ env.ARCHIVE_FILENAME }}
+          name: ${{ env.EXE_FILENAME }}
+          path: ${{ env.EXE_FILENAME }}
 
       - name: Upload release binaries
         uses: alexellis/upload-assets@0.2.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          asset_paths: '["${{ env.ARCHIVE_FILENAME }}"]'
+          asset_paths: '["${{ env.EXE_FILENAME }}"]'
