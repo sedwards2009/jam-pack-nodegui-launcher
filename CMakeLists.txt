@@ -19,9 +19,6 @@ if(CMAKE_HOST_WIN32)
 
 elseif(CMAKE_HOST_APPLE)
   add_executable(jam-pack-nodegui-launcher src/main.c)
-  target_link_libraries(list-fonts-json
-    "-framework Foundation"
-  )
 
 elseif(CMAKE_HOST_UNIX)
   add_executable(jam-pack-nodegui-launcher src/main.c)
