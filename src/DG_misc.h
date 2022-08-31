@@ -773,7 +773,7 @@ DG_MISC_DEF size_t DG_strnlen(const char* s, size_t n)
 	// on other machines it's faster to do aligned WordSize-d reads
 
 	// bitmask to align a pointer address to a multiple of WordSize
-	static const uintptr_t WordAlignMask = ~(uintptr_t)(WordSize-1);
+	static const uintptr_t WordAlignMask = ~(uintptr_t)(sizeof(uintptr_t)-1);
 
 	// s aligned to the next word boundary
 	uintptr_t s_alnI = ((uintptr_t)s + WordSize - 1) & WordAlignMask;
