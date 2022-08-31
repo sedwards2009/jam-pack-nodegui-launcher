@@ -23,7 +23,17 @@
 
 
 static char *targetProgramPath = "./node_modules/@nodegui/qode/binaries/qode";
-static char *targetFirstArg = "dist/main.js";
+
+// This is filled with a magic string which can be found later in the output binary exe and then overwritten.
+static char *targetFirstArg =
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717"
+  "4f8177788c5a4086ac9f18d8639b7717";
 
 int main(int argc, char *argv[], char *envp[]) {
   // Set cwd to the application directory.
@@ -37,8 +47,8 @@ int main(int argc, char *argv[], char *envp[]) {
   newArgv[2] = 0;
   for (int i=1; i<argc; i++) {
     newArgv[i+1] = argv[i];
-    newArgv[i+2] = 0;
   }
+  newArgv[argc+1] = 0;
 
 #if defined(_WIN32)
   _execve(targetProgramPath, newArgv, envp);
