@@ -26,7 +26,7 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
           make
-          mv jam-pack-nodegui-launcher jam-pack-nodegui-launcher-${{ matrix.platform }}
+          mv jam-pack-nodegui-launcher ../jam-pack-nodegui-launcher-${{ matrix.platform }}
       - if: ${{ matrix.platform == 'win32' }}
         uses: ilammy/msvc-dev-cmd@v1
       - if: ${{ matrix.platform == 'win32' }}
@@ -35,7 +35,7 @@ jobs:
           cd build
           cmake -G "NMake Makefiles" ..
           nmake
-          mv jam-pack-nodegui-launcher.exe jam-pack-nodegui-launcher-${{ matrix.platform }}.exe
+          mv jam-pack-nodegui-launcher.exe ../jam-pack-nodegui-launcher-${{ matrix.platform }}.exe
       - name: Keep the executable
         if: ${{ matrix.platform == 'win32' }}
         uses: actions/upload-artifact@v2
