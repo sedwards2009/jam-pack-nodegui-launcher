@@ -40,13 +40,14 @@ jobs:
         if: ${{ matrix.platform == 'win32' }}
         uses: actions/upload-artifact@v2
         with:
-          name: extraterm-launcher-windows.exe
-          path: extraterm-launcher-windows.exe
+          name: jam-pack-nodegui-launcher-windows.exe
+          path: jam-pack-nodegui-launcher-windows.exe
       - name: Keep the executable
+        if: ${{ matrix.platform != 'win32' }}
         uses: actions/upload-artifact@v2
         with:
-          name: extraterm-launcher-${{ matrix.platform }}
-          path: extraterm-launcher-${{ matrix.platform }}
+          name: jam-pack-nodegui-launcher-${{ matrix.platform }}
+          path: jam-pack-nodegui-launcher-${{ matrix.platform }}
 
   release-tag-as-draft:
     name: Release tag as a draft release
