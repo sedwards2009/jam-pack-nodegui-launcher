@@ -12,24 +12,24 @@ jobs:
             platform: linux
             arch: x64
           - os: windows-latest
-            platform: win32
+            platform: windows
             arch: x64
           - os: macos-latest
-            platform: darwin
+            platform: macos
             arch: x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - if: ${{ matrix.platform != 'win32' }}
+      - if: ${{ matrix.platform != 'windows' }}
         run: |
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
           make
           mv jam-pack-nodegui-launcher ../jam-pack-nodegui-launcher-${{ matrix.platform }}
-      - if: ${{ matrix.platform == 'win32' }}
+      - if: ${{ matrix.platform == 'windows' }}
         uses: ilammy/msvc-dev-cmd@v1
-      - if: ${{ matrix.platform == 'win32' }}
+      - if: ${{ matrix.platform == 'windows' }}
         run: |
           mkdir build
           cd build
@@ -37,13 +37,13 @@ jobs:
           nmake
           mv jam-pack-nodegui-launcher.exe ../jam-pack-nodegui-launcher-${{ matrix.platform }}.exe
       - name: Keep the executable
-        if: ${{ matrix.platform == 'win32' }}
+        if: ${{ matrix.platform == 'windows' }}
         uses: actions/upload-artifact@v2
         with:
           name: jam-pack-nodegui-launcher-windows.exe
           path: jam-pack-nodegui-launcher-windows.exe
       - name: Keep the executable
-        if: ${{ matrix.platform != 'win32' }}
+        if: ${{ matrix.platform != 'windows' }}
         uses: actions/upload-artifact@v2
         with:
           name: jam-pack-nodegui-launcher-${{ matrix.platform }}
