@@ -10,6 +10,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(_WIN32)
 #include <direct.h>
@@ -35,6 +36,102 @@ static char *targetFirstArg =
   "4f8177788c5a4086ac9f18d8639b7717"
   "4f8177788c5a4086ac9f18d8639b7717";
 
+#if defined(_WIN32)
+
+/* 1KB */
+static char *extraExePaths =
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840"
+  "92c9c49a891d4061ba239c46fcf4c840";
+
+/* Construct a new Path variable based on the existing Path var and path fragments stored in extraExePaths. */
+char *buildNewPathVar(char *oldPathVar, char *baseDir) {
+  int baseDirLen = strlen(baseDir);
+
+  if (strlen(extraExePaths) == 0) {
+    return oldPathVar;
+  }
+
+  const char *scanPtr = extraExePaths;
+  int numOfPaths = 1;
+  while((scanPtr = strstr(scanPtr, ";")) != NULL) {
+    numOfPaths++;
+    scanPtr++;
+  }
+
+  int newVarLen = sizeof(char *) * ((baseDirLen + 1) * numOfPaths + strlen(extraExePaths) + strlen(oldPathVar) +
+                    1 + strlen("Path="));
+  char *newPathVar = (char *)malloc(newVarLen);
+  newPathVar[0] = 0;
+  strcat(newPathVar, "Path=");
+
+  char *startPtr = extraExePaths;
+  char *scanPtr2 = extraExePaths;
+  while((scanPtr2 = strstr(scanPtr2, ";")) != NULL) {
+    strcat(newPathVar, baseDir);
+
+    *scanPtr2 = 0;
+    strcat(newPathVar, startPtr);
+
+    scanPtr2++;
+    startPtr = scanPtr2;
+
+    strcat(newPathVar, ";");
+  }
+  strcat(newPathVar, oldPathVar + strlen("Path="));
+
+  return newPathVar;
+}
+
+char **patchEnvPathVar(char *envp[], char *baseDir) {
+  int numVars = 0;
+  while (envp[numVars] != NULL) {
+    numVars++;
+  }
+
+  int envListSize = sizeof(char *) * (numVars + 1);
+  char **newEnv = (char **)malloc(envListSize);
+  memcpy(newEnv, envp, envListSize);
+
+  for (int i=0; newEnv[i]!=0; i++) {
+    if (strstr(newEnv[i], "Path=") == newEnv[i]) {
+      newEnv[i] = buildNewPathVar(newEnv[i], baseDir);
+      break;
+    }
+  }
+  return newEnv;
+}
+#endif
+
 int main(int argc, char *argv[], char *envp[]) {
   // Set cwd to the application directory.
   const char *exe_path = DG_GetExecutableDir();
@@ -55,11 +152,13 @@ int main(int argc, char *argv[], char *envp[]) {
   newArgv[argc+1] = 0;
 
 #if defined(_WIN32)
-  _execve(targetProgramPath, newArgv, envp);
+  char **newEnvp = patchEnvPathVar(envp, exe_path);
+  _execve(targetProgramPath, newArgv, newEnvp);
+  return 0;
 #else
   execve(targetProgramPath, newArgv, envp);
-#endif
   /* In normal execution, this line will not be reached. */
   perror("Unable to run qode");
   return -1;
+#endif
 }
