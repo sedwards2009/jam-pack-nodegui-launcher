@@ -133,12 +133,19 @@ char **patchEnvPathVar(char *envp[], char *baseDir) {
 #endif
 
 int main(int argc, char *argv[], char *envp[]) {
+
   // Set cwd to the application directory.
   const char *exe_path = DG_GetExecutableDir();
 #if defined(_WIN32)
   _chdir(exe_path);
 #else
   chdir(exe_path);
+#endif
+
+#if defined(__APPLE__)
+  if (access(targetProgramPath, F_OK) != 0) {
+    chdir("../Resources");
+  }
 #endif
 
   // Pass on any command line arguments to qode.
